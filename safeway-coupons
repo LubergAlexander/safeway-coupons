@@ -155,16 +155,14 @@ class Safeway():
         rsp.stream = False
 
         self._debug('Logging in as %s' % self.auth.get('username'))
-        login_data = urllib.parse.urlencode({
-            'encoded': False,
-            'arg': 'newsession',
-            'goto': 'http://www.safeway.com/ShopStores/Home',
-            'SunQueryParamString': '',
-            'IDToken1': self.auth.get('username'),
-            'IDToken2': self.auth.get('password')
-        })
-        headers = {'Content-type': 'application/x-www-form-urlencoded', 'Accept': 'text/plain'}
-        rsp = self._run_request('https://auth.safeway.com/opensso/UI/Login', login_data, headers)
+        login_data = {
+            'source': "WEB",
+            'rememberMe': False,
+            'userId': self.auth.get('username'),
+            'password': self.auth.get('password')
+        }
+        headers = {'Content-type': 'application/json ; charset=UTF-8', 'Accept': 'application/json, text/javascript, */*; q=0.01'}
+        rsp = self._run_request('https://www.safeway.com/iaaw/service/authenticate', json.dumps(login_data), headers)
         if 'error' in rsp.content.decode('UTF-8'):
             raise Exception('Authentication failure')
 

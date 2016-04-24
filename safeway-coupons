@@ -9,10 +9,12 @@ import random
 import re
 import time
 import traceback
-import urllib.parse
 
 import requests
 from requests.adapters import HTTPAdapter
+from requests.packages import urllib3
+
+urllib3.disable_warnings()
 
 # Parse options
 arg_parser = argparse.ArgumentParser(description='Automatically add online coupons to your Safeway card')
@@ -161,7 +163,8 @@ class Safeway():
             'userId': self.auth.get('username'),
             'password': self.auth.get('password')
         }
-        headers = {'Content-type': 'application/json ; charset=UTF-8', 'Accept': 'application/json, text/javascript, */*; q=0.01'}
+        headers = {'Content-type': 'application/json ; charset=UTF-8',
+                   'Accept': 'application/json, text/javascript, */*; q=0.01'}
         rsp = self._run_request('https://www.safeway.com/iaaw/service/authenticate', json.dumps(login_data), headers)
         if 'error' in rsp.content.decode('UTF-8'):
             raise Exception('Authentication failure')
@@ -169,7 +172,7 @@ class Safeway():
     def _run_request(self, url, data=None, headers=None):
         if data:
             return self.r_s.post(url, headers=headers, data=data)
-        return self.r_s.get(url, headers=headers)
+        return self.r_s.get(url, headers=headers, verify=False)
 
     def _get_coupon_details(self, oid, ts, section):
         headers = js_req_headers
